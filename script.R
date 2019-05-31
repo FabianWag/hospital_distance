@@ -13,16 +13,25 @@ library(scales)
 spital <- read_csv("./leitspital.csv")
 
 hospital_new <- "Stainach-Pürgg"
+# There are three cities with hospitals in them
 hospital_old <- spital %>%
   filter(num_hospitals > 0) %>%
   select(municipality)
 
 
-
+# GOOGLE API KEY
 key = "YOUR_KEY_HERE"
+
+
+# Functions ---------------------------------------------------------------
+
+
 
 #Page where I got the function from
 #https://stackoverflow.com/questions/16863018/getting-driving-distance-between-two-points-lat-lon-using-r-and-google-map-ap
+
+
+# The function calls google maps for the driving duration between two places. 
 
 drive_duration <- function(origin,destination = hospital_new){
   origin <- paste0(str_replace_all(origin," ",""),",Styria,Austria")
@@ -36,7 +45,7 @@ drive_duration <- function(origin,destination = hospital_new){
 
 
 
-
+# Here we call the above function for all three of the old hospitals and return the one with the least driving duration
 duration_to_closest_hospital <- function(origin){
   durations <- vector(mode = "numeric", length = nrow(hospital_old))
   for (i in 1:nrow(hospital_old)) {
@@ -46,6 +55,11 @@ duration_to_closest_hospital <- function(origin){
 }
 
 
+
+
+# Distance Calculation ----------------------------------------------------
+
+
 spital$duration_new_hosp <- do.call(rbind, lapply(spital$municipality, drive_duration))
 spital$duration_old_hosp <- do.call(rbind, lapply(spital$municipality, duration_to_closest_hospital))
 
@@ -53,6 +67,9 @@ spital <- spital %>%
   mutate(duration_diff = duration_new_hosp - duration_old_hosp,
          percent_yes = (yes/valid))
 
+
+
+# So artsy ----------------------------------------------------------------
 
 
 
